@@ -1,4 +1,4 @@
-const ver = "V3.1.1";
+const ver = "HieuDz";
 let isDev = false;
 
 const repoPath = `https://raw.githubusercontent.com/Niximkk/Khanware/refs/heads/${isDev ? "dev/" : "main/"}`;
