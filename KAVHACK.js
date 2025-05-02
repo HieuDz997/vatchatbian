@@ -1,8 +1,8 @@
 (async function() {
   try {
     // Kiểm tra nếu đã chạy script
-    if (window.Khanware) return;
-    window.Khanware = true;
+    if (window.KavHack) return;
+    window.KavHack = true;
 
     const ver = "KavHackHieuDz";
     let isDev = false;
@@ -33,7 +33,8 @@
       nextRecomendation: false,
       repeatQuestion: false,
       minuteFarmer: false,
-      rgbLogo: false
+      rgbLogo: false,
+      darkMode: true
     };
     window.featureConfigs = {
       autoAnswerDelay: 3,
@@ -60,12 +61,6 @@
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #1e40af; border-radius: 8px; }
         ::-webkit-scrollbar-thumb:hover { background: #facc15; }
-        dropDownMenu, statsPanel {
-          border-radius: 8px !important;
-          background: linear-gradient(135deg, #1e40af, #facc15) !important;
-          font-family: 'Inter', sans-serif !important;
-          color: white !important;
-        }
       `
     }));
     document.querySelector("link[rel~='icon']").href = 'https://i.imgur.com/JDt99XK.jpeg';
@@ -86,21 +81,9 @@
     // Misc Functions
     window.debug = function(text) { console.log(`[KavHack Debug] ${text}`); };
     const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-    const playAudio = url => {
-      try {
-        const audio = new Audio(url);
-        audio.play();
-        debug(`🔊 Playing audio from ${url}`);
-      } catch (e) {
-        debug(`Audio error: ${e.message}`);
-      }
-    };
     const findAndClickBySelector = selector => {
       const element = document.querySelector(selector);
-      if (element) {
-        element.click();
-        sendToast(`⭕ Pressionando ${selector}...`, 1000);
-      }
+      if (element) { element.click(); sendToast(`⭕ Pressing ${selector}...`, 1000); }
     };
 
     function sendToast(text, duration=5000, gravity='bottom') {
@@ -244,7 +227,6 @@
     }
 
     sendToast("🌟 KavHack by HieuDz Injected!");
-    playAudio('https://r2.e-z.host/4d0a0bea-60f8-44d6-9e74-3032a64a9f32/gcelzszy.wav');
     await delay(500);
     sendToast(`⭐ Chào mừng bạn: ${user.nickname}`);
     if (device.apple) { await delay(500); sendToast(`🍎 Hãy thử thiết bị khác nhé!`); }
@@ -253,6 +235,9 @@
     setupMenu();
     setupMain();
     console.clear();
+
+    // Tín dụng
+    debug("KavHack by HieuDz, customized for learning purposes.");
   } catch (e) {
     console.error(`[KavHack Error] Failed to inject: ${e.message}`);
   }
