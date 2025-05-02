@@ -1,165 +1,214 @@
-const setFeatureByPath = (path, value) => {
-  let obj = window;
-  const parts = path.split('.');
-  while (parts.length > 1) obj = obj[parts.shift()];
-  obj[parts[0]] = value;
+const ver = "V3.1.1";
+let isDev = false;
+
+const repoPath = `https://raw.githubusercontent.com/Niximkk/Khanware/refs/heads/${isDev ? "dev/" : "main/"}`;
+
+let device = {
+    mobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Windows Phone|Mobile|Tablet|Kindle|Silk|PlayBook|BB10/i.test(navigator.userAgent),
+    apple: /iPhone|iPad|iPod|Macintosh|Mac OS X/i.test(navigator.userAgent)
 };
 
-function addFeature(features) {
-  const feature = document.createElement('feature');
-  features.forEach(attribute => {
-    let element = attribute.type === 'nonInput' ? document.createElement('label') : document.createElement('input');
-    if (attribute.type === 'nonInput') element.innerHTML = attribute.name;
-    else { element.type = attribute.type; element.id = attribute.name; }
-
-    if (attribute.attributes) {
-      attribute.attributes.split(' ').map(attr => attr.split('=')).forEach(([key, value]) => {
-        value = value ? value.replace(/"/g, '') : '';
-        key === 'style' ? element.style.cssText = value : element.setAttribute(key, value);
-      });
-    }
-
-    if (attribute.variable) element.setAttribute('setting-data', attribute.variable);
-    if (attribute.dependent) element.setAttribute('dependent', attribute.dependent);
-    if (attribute.className) element.classList.add(attribute.className);
-
-    if (attribute.labeled) {
-      const label = document.createElement('label');
-      if (attribute.className) label.classList.add(attribute.className);
-      if (attribute.attributes) {
-        attribute.attributes.split(' ').map(attr => attr.split('=')).forEach(([key, value]) => {
-          value = value ? value.replace(/"/g, '') : '';
-          key === 'style' ? label.style.cssText = value : label.setAttribute(key, value);
-        });
-      }
-      label.innerHTML = `${element.outerHTML} ${attribute.label}`;
-      feature.appendChild(label);
-    } else {
-      feature.appendChild(element);
-    }
-  });
-  dropdownMenu.innerHTML += feature.outerHTML;
+/* User */
+let user = {
+    username: "Username",
+    nickname: "Nickname",
+    UID: 0
 }
 
-function handleInput(ids, callback = null) {
-  (Array.isArray(ids) ? ids.map(id => document.getElementById(id)) : [document.getElementById(ids)])
-    .forEach(element => {
-      if (!element) return;
-      const setting = element.getAttribute('setting-data'),
-            dependent = element.getAttribute('dependent'),
-            handleEvent = (e, value) => {
-              setFeatureByPath(setting, value);
-              if (callback) callback(value, e);
-            };
+let loadedPlugins = [];
 
-      if (element.type === 'checkbox') {
-        element.addEventListener('change', (e) => {
-          handleEvent(e, e.target.checked);
-          if (dependent) dependent.split(',').forEach(dep => 
-            document.querySelectorAll(`.${dep}`).forEach(depEl => 
-              depEl.style.display = e.target.checked ? null : "none"));
-        });
-      } else {
-        element.addEventListener('input', (e) => handleEvent(e, e.target.value));
-      }
-    });
+/* Elements */
+const unloader = document.createElement('unloader');
+const dropdownMenu = document.createElement('dropDownMenu');
+const watermark = document.createElement('watermark');
+const statsPanel = document.createElement('statsPanel');
+const splashScreen = document.createElement('splashScreen');
+
+/* Globals */
+window.features = {
+    questionSpoof: true,
+    videoSpoof: true,
+    showAnswers: false,
+    autoAnswer: false,
+    customBanner: false,
+    nextRecomendation: false,
+    repeatQuestion: false,
+    minuteFarmer: false,
+    rgbLogo: false
+};
+window.featureConfigs = {
+    autoAnswerDelay: 3,
+    customUsername: "",
+    customPfp: ""
+};
+
+/* Security */
+document.addEventListener('contextmenu', (e) => !window.disableSecurity && e.preventDefault());
+document.addEventListener('keydown', (e) => { if (!window.disableSecurity && (e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I', 'C', 'J'].includes(e.key)))) { e.preventDefault(); } });
+console.log(Object.defineProperties(new Error, { toString: {value() {(new Error).stack.includes('toString@') && location.reload();}}, message: {get() {location.reload();}}, }));
+
+/* Misc Styles */
+document.head.appendChild(Object.assign(document.createElement("style"),{innerHTML:"@font-face{font-family:'MuseoSans';src:url('https://corsproxy.io/?url=https://r2.e-z.host/4d0a0bea-60f8-44d6-9e74-3032a64a9f32/ynddewua.ttf')format('truetype')}" }));
+document.head.appendChild(Object.assign(document.createElement('style'),{innerHTML:"::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #f1f1f1; } ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; } ::-webkit-scrollbar-thumb:hover { background: #555; }"}));
+document.querySelector("link[rel~='icon']").href = 'https://r2.e-z.host/4d0a0bea-60f8-44d6-9e74-3032a64a9f32/ukh0rq22.png';
+
+/* Emmiter */
+class EventEmitter{constructor(){this.events={}}on(t,e){"string"==typeof t&&(t=[t]),t.forEach(t=>{this.events[t]||(this.events[t]=[]),this.events[t].push(e)})}off(t,e){"string"==typeof t&&(t=[t]),t.forEach(t=>{this.events[t]&&(this.events[t]=this.events[t].filter(t=>t!==e))})}emit(t,...e){this.events[t]&&this.events[t].forEach(t=>{t(...e)})}once(t,e){"string"==typeof t&&(t=[t]);let s=(...i)=>{e(...i),this.off(t,s)};this.on(t,s)}};
+const plppdo = new EventEmitter();
+
+new MutationObserver((mutationsList) => { for (let mutation of mutationsList) if (mutation.type === 'childList') plppdo.emit('domChanged'); }).observe(document.body, { childList: true, subtree: true });
+
+/* Misc Functions */
+window.debug = function(text) { /* QuickFix */}
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+const playAudio = url => { const audio = new Audio(url); audio.play(); debug(`🔊 Playing audio from ${url}`); };
+const findAndClickBySelector = selector => { const element = document.querySelector(selector); if (element) { element.click(); sendToast(`⭕ Pressionando ${selector}...`, 1000); } };
+
+function sendToast(text, duration=5000, gravity='bottom') { Toastify({ text: text, duration: duration, gravity: gravity, position: "center", stopOnFocus: true, style: { background: "#000000" } }).showToast(); debug(text); };
+
+     async function showSplashScreen() {
+      splashScreen.style.cssText = `
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        width: 400px; height: 300px; background: linear-gradient(135deg, #1e40af, #facc15);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        z-index: 9999; opacity: 0; transition: opacity 0.5s ease; user-select: none;
+        font-family: 'Inter', sans-serif; color: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      `;
+      splashScreen.innerHTML = `
+        <img src="https://i.imgur.com/JDt99XK.jpeg" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 20px;">
+        <span style="font-size: 30px; font-weight: 700;">Hiếu Dz</span>
+        <span style="font-size: 24px; color: #facc15;">KavHack</span>
+      `;
+      document.body.appendChild(splashScreen);
+      setTimeout(() => splashScreen.style.opacity = '1', 10);
+    }
+
+    async function hideSplashScreen() {
+      splashScreen.style.opacity = '0';
+      await delay(1000);
+      splashScreen.remove();
+    }
+
+async function loadScript(url, label) { return fetch(url).then(response => response.text()).then(script => { loadedPlugins.push(label); eval(script); }); }
+async function loadCss(url) { return new Promise((resolve) => { const link = document.createElement('link'); link.rel = 'stylesheet'; link.type = 'text/css'; link.href = url; link.onload = () => resolve(); document.head.appendChild(link); }); }
+
+/* Visual Functions */
+function setupMenu() {
+    loadScript(repoPath+'visuals/mainMenu.js', 'mainMenu');
+    loadScript(repoPath+'visuals/statusPanel.js', 'statusPanel');
+    loadScript(repoPath+'visuals/widgetBot.js', 'widgetBot');
+    if(isDev) loadScript(repoPath+'visuals/devTab.js', 'devTab');
 }
 
-/* Watermark */
-Object.assign(watermark.style, {
-  position: 'fixed', top: '10px', left: '85%', width: '150px', height: '40px',
-  background: 'linear-gradient(135deg, #1e40af, #facc15)', color: 'white',
-  fontSize: '16px', fontFamily: 'Inter, sans-serif', display: 'flex',
-  justifyContent: 'space-between', alignItems: 'center', cursor: 'default',
-  userSelect: 'none', padding: '0 10px', borderRadius: '8px', zIndex: '1001',
-  transition: 'transform 0.3s ease', boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+/* Main Functions */ 
+function setupMain(){
+    loadScript(repoPath+'functions/questionSpoof.js', 'questionSpoof');
+    loadScript(repoPath+'functions/videoSpoof.js', 'videoSpoof');
+    loadScript(repoPath+'functions/minuteFarm.js', 'minuteFarm');
+    loadScript(repoPath+'functions/spoofUser.js', 'spoofUser');
+    loadScript(repoPath+'functions/answerRevealer.js', 'answerRevealer');
+    loadScript(repoPath+'functions/rgbLogo.js', 'rgbLogo');
+    loadScript(repoPath+'functions/customBanner.js', 'customBanner');
+    loadScript(repoPath+'functions/autoAnswer.js', 'autoAnswer');
+}
+
+/* Inject */
+if (!/^https?:\/\/([a-z0-9-]+\.)?khanacademy\.org/.test(window.location.href)) { alert("❌ Khanware Failed to Injected!\n\nVocê precisa executar o Khanware no site do Khan Academy! (https://pt.khanacademy.org/)"); window.location.href = "https://pt.khanacademy.org/"; }
+
+showSplashScreen();
+
+loadScript('https://raw.githubusercontent.com/adryd325/oneko.js/refs/heads/main/oneko.js', 'onekoJs').then(() => { onekoEl = document.getElementById('oneko'); onekoEl.style.backgroundImage = "url('https://raw.githubusercontent.com/adryd325/oneko.js/main/oneko.gif')"; onekoEl.style.display = "none"; });
+loadScript('https://cdn.jsdelivr.net/npm/darkreader@4.9.92/darkreader.min.js', 'darkReaderPlugin').then(()=>{ DarkReader.setFetchMethod(window.fetch); DarkReader.enable(); })
+loadCss('https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css', 'toastifyCss');
+loadScript('https://cdn.jsdelivr.net/npm/toastify-js', 'toastifyPlugin')
+.then(async () => {
+    await fetch(`https://${window.location.hostname}/api/internal/graphql/getFullUserProfile`,{headers:{accept:"*/*","accept-language":"pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7","content-type":"application/json",priority:"u=1, i","sec-ch-ua":'"Chromium";v="134", "Not:A-Brand";v="24", "Brave";v="134"',"sec-ch-ua-mobile":"?0","sec-ch-ua-platform":'"Windows"',"sec-fetch-dest":"empty","sec-fetch-mode":"cors","sec-fetch-site":"same-origin","sec-gpc":"1","x-ka-fkey":"1"},referrer:"https://pt.khanacademy.org/profile/me/teacher/kaid_589810246138844031185299/class/6245691961556992",referrerPolicy:"strict-origin-when-cross-origin",body:'{"operationName":"getFullUserProfile","variables":{},"query":"query getFullUserProfile($kaid: String, $username: String) {\\n  user(kaid: $kaid, username: $username) {\\n    id\\n    kaid\\n    key\\n    userId\\n    email\\n    username\\n    profileRoot\\n    gaUserId\\n    isPhantom\\n    isDeveloper: hasPermission(name: \\"can_do_what_only_admins_can_do\\")\\n    isPublisher: hasPermission(name: \\"can_publish\\", scope: ANY_ON_CURRENT_LOCALE)\\n    isModerator: hasPermission(name: \\"can_moderate_users\\", scope: GLOBAL)\\n    isParent\\n    isTeacher\\n    isFormalTeacher\\n    isK4dStudent\\n    isKmapStudent\\n    isDataCollectible\\n    isChild\\n    isOrphan\\n    isCoachingLoggedInUser\\n    canModifyCoaches\\n    nickname\\n    hideVisual\\n    joined\\n    points\\n    countVideosCompleted\\n    bio\\n    profile {\\n      accessLevel\\n      __typename\\n    }\\n    soundOn\\n    muteVideos\\n    showCaptions\\n    prefersReducedMotion\\n    noColorInVideos\\n    newNotificationCount\\n    canHellban: hasPermission(name: \\"can_ban_users\\", scope: GLOBAL)\\n    canMessageUsers: hasPermission(\\n      name: \\"can_send_moderator_messages\\"\\n      scope: GLOBAL\\n    )\\n    isSelf: isActor\\n    hasStudents: hasCoachees\\n    hasClasses\\n    hasChildren\\n    hasCoach\\n    badgeCounts\\n    homepageUrl\\n    isMidsignupPhantom\\n    includesDistrictOwnedData\\n    includesKmapDistrictOwnedData\\n    includesK4dDistrictOwnedData\\n    canAccessDistrictsHomepage\\n    underAgeGate {\\n      parentEmail\\n      daysUntilCutoff\\n      approvalGivenAt\\n      __typename\\n    }\\n    authEmails\\n    signupDataIfUnverified {\\n      email\\n      emailBounced\\n      __typename\\n    }\\n    pendingEmailVerifications {\\n      email\\n      __typename\\n    }\\n    hasAccessToAIGuideCompanionMode\\n    hasAccessToAIGuideLearner\\n    hasAccessToAIGuideDistrictAdmin\\n    hasAccessToAIGuideParent\\n    hasAccessToAIGuideTeacher\\n    tosAccepted\\n    shouldShowAgeCheck\\n    birthMonthYear\\n    lastLoginCountry\\n    region\\n    userDistrictInfos {\\n      id\\n      isKAD\\n      district {\\n        id\\n        region\\n        __typename\\n      }\\n      __typename\\n    }\\n    schoolAffiliation {\\n      id\\n      location\\n      __typename\\n    }\\n    __typename\\n  }\\n  actorIsImpersonatingUser\\n  isAIGuideEnabled\\n  hasAccessToAIGuideDev\\n}"}',method:"POST",mode:"cors",credentials:"include"})
+    .then(async response => { let data = await response.json(); user = { nickname: data.data.user.nickname, username: data.data.user.username, UID: data.data.user.id.slice(-5) }; })
+    
+    sendToast("🌿 Khanware injetado com sucesso!");
+    
+    playAudio('https://r2.e-z.host/4d0a0bea-60f8-44d6-9e74-3032a64a9f32/gcelzszy.wav');
+    
+    await delay(500);
+    
+    sendToast(`⭐ Bem vindo(a) de volta: ${user.nickname}`);
+    if(device.apple) { await delay(500); sendToast(`🪽 Que tal comprar um Samsung?`); }
+    
+    loadedPlugins.forEach(plugin => sendToast(`🪝 ${plugin} Loaded!`, 2000, 'top') );
+    
+    hideSplashScreen();
+    setupMenu();
+    setupMain();
+    
+    console.clear();
 });
 
-if (device.mobile) watermark.style.left = '55%';
-
-watermark.innerHTML = `<span style="font-weight: 700;">KavHack</span> <span style="color: #f1f1f1; padding-left: 2px; font-size: 12px;">${ver}</span>`;
-
-document.body.appendChild(watermark);
-
-let isDragging = false, offsetX, offsetY;
-
-watermark.addEventListener('mousedown', e => {
-  if (!dropdownMenu.contains(e.target)) {
-    isDragging = true;
-    offsetX = e.clientX - watermark.offsetLeft;
-    offsetY = e.clientY - watermark.offsetTop;
-    watermark.style.transform = 'scale(0.9)';
-  }
-});
-watermark.addEventListener('mouseup', () => {
-  isDragging = false;
-  watermark.style.transform = 'scale(1)';
-});
-
-document.addEventListener('mousemove', e => {
-  if (isDragging) {
-    let newX = Math.max(0, Math.min(e.clientX - offsetX, window.innerWidth - watermark.offsetWidth));
-    let newY = Math.max(0, Math.min(e.clientY - offsetY, window.innerHeight - watermark.offsetHeight));
-    Object.assign(watermark.style, { left: `${newX}px`, top: `${newY}px` });
-    dropdownMenu.style.display = 'none';
-  }
-});
-
-/* Dropdown */
-Object.assign(dropdownMenu.style, {
-  position: 'absolute', top: '100%', left: '0', width: '200px',
-  background: 'linear-gradient(135deg, #1e40af, #facc15)', borderRadius: '8px',
-  color: 'white', fontSize: '14px', fontFamily: 'Inter, sans-serif',
-  display: 'none', flexDirection: 'column', zIndex: '1000', padding: '10px',
-  cursor: 'default', userSelect: 'none', transition: 'transform 0.3s ease',
-  boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
-});
-
-dropdownMenu.innerHTML = `
-  <style>
-    input[type="checkbox"] { appearance: none; width: 16px; height: 16px; background-color: #ffffff;
-      border: 2px solid #1e40af; border-radius: 4px; margin-right: 8px; cursor: pointer; }
-    input[type="checkbox"]:checked { background-color: #1e40af; border-color: #facc15; }
-    input[type="text"], input[type="number"], input[type="range"] { width: calc(100% - 10px); border: 2px solid #1e40af;
-      color: white; accent-color: #facc15; background-color: rgba(255,255,255,0.1); padding: 5px; border-radius: 4px; }
-    label { display: flex; align-items: center; color: white; padding-top: 5px; font-size: 14px; }
-  </style>
-`;
-
-watermark.appendChild(dropdownMenu);
-
-let featuresList = [
-  { name: 'questionSpoof', type: 'checkbox', variable: 'features.questionSpoof', attributes: 'checked', labeled: true, label: 'Question Spoof' },
-  { name: 'videoSpoof', type: 'checkbox', variable: 'features.videoSpoof', attributes: 'checked', labeled: true, label: 'Video Spoof' },
-  { name: 'showAnswers', type: 'checkbox', variable: 'features.showAnswers', labeled: true, label: 'Answer Revealer' },
-  { name: 'autoAnswer', type: 'checkbox', variable: 'features.autoAnswer', dependent: 'autoAnswerDelay,nextRecomendation,repeatQuestion', labeled: true, label: 'Auto Answer' },
-  { name: 'repeatQuestion', className: 'repeatQuestion', type: 'checkbox', variable: 'features.repeatQuestion', attributes: 'style="display:none;"', labeled: true, label: 'Repeat Question' },
-  { name: 'nextRecomendation', className: 'nextRecomendation', type: 'checkbox', variable: 'features.nextRecomendation', attributes: 'style="display:none;"', labeled: true, label: 'Recommendations' },
-  { name: 'autoAnswerDelay', className: 'autoAnswerDelay', type: 'range', variable: 'features.autoAnswerDelay', attributes: 'style="display:none;" min="1" max="3" value="1"', labeled: false },
-  { name: 'minuteFarm', type: 'checkbox', variable: 'features.minuteFarmer', labeled: true, label: 'Minute Farmer' },
-  { name: 'customBanner', type: 'checkbox', variable: 'features.customBanner', labeled: true, label: 'Custom Banner' },
-  { name: 'rgbLogo', type: 'checkbox', variable: 'features.rgbLogo', labeled: true, label: 'RGB Logo' },
-  { name: 'darkMode', type: 'checkbox', variable: 'features.darkMode', attributes: 'checked', labeled: true, label: 'Dark Mode' },
-  { name: 'Custom Username', type: 'nonInput' },
-  { name: 'customName', type: 'text', variable: 'featureConfigs.customUsername', attributes: 'autocomplete="off"' },
-  { name: 'Custom Pfp', type: 'nonInput' },
-  { name: 'customPfp', type: 'text', variable: 'featureConfigs.customPfp', attributes: 'autocomplete="off"' }
-];
-
-featuresList.push({ name: `${user.username} - UID: ${user.UID}`, type: 'nonInput', attributes: 'style="font-size:12px;padding-left:5px;"' });
-
-addFeature(featuresList);
-
-handleInput(['questionSpoof', 'videoSpoof', 'showAnswers', 'nextRecomendation', 'repeatQuestion', 'minuteFarm', 'customBanner', 'rgbLogo']);
-handleInput(['customName', 'customPfp']);
-handleInput('autoAnswer', checked => checked && !features.questionSpoof && (document.querySelector('[setting-data="features.questionSpoof"]').checked = features.questionSpoof = true));
-handleInput('autoAnswerDelay', value => value && (featureConfigs.autoAnswerDelay = 4 - value));
-handleInput('darkMode', checked => {
-  if (window.DarkReader) {
-    DarkReader.setFetchMethod(window.fetch);
-    checked ? DarkReader.enable() : DarkReader.disable();
-  }
-});
-
-watermark.addEventListener('mouseenter', () => { dropdownMenu.style.display = 'flex'; });
-watermark.addEventListener('mouseleave', e => { !watermark.contains(e.relatedTarget) && (dropdownMenu.style.display = 'none'); });
+/* Thank you to everyone who has purchased access to my cheat as of 10/28/24.
+@Thomaz015
+@grazynabazio
+@melyssaxavier
+@WESLEY.SPREDEMANN
+@carine.rech.alves
+@nazare.de.maria
+@jowsanth
+@bielzy
+@rafaeldeagostino
+@AMFDS
+@Jv010107
+@Mattheusfreitas01
+@Guilhermeoliveira2623
+@Matt010101
+@voncallis
+@Thamiris0001
+@Holmes1212
+@Martinss0000
+@zRoque
+@LaryCouto.com.br
+@IanyckFerreira
+@sales7
+@AleSobral
+@wbzz2121
+@Umunizzz
+@ViniciusMancini
+@ricardaosantista
+@marcos10pc
+@bzinxxx
+@ryanmzmartins
+@Kaleb1577
+@brunopereirabarros
+@RodrigoMartins1236751
+@guixzf
+@Leandrohenrq
+@damnntiago
+@WhoisMe777
+@Gustavopc21
+@matheus.hx2
+@WSZL
+@LeozinB2
+@Davas123
+@joaoviturino
+@orickmaxx
+@l55nar5
+@nextbyhawk
+@Bruninda019
+@GabrielRibeiroP
+@Shinjoia
+@hy7pee
+@arthurmondequedutra
+@PedrooVsp
+@zBlucker
+@vitiintavares
+@Holmes1212
+@Anthony06927
+@refinado
+@ErickMarinelli
+@pedroomelhor
+@gabrielmonteiro0053
+@Felipealexandre10
+@saantzx7
+@alvarosouzaribeiro
+@gabrielejte
+@Kevinzada
+@antonio77xs
+@marcus.floriano.oliveira
+*/
