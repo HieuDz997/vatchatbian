@@ -1,4 +1,4 @@
-const ver = "KhanHackByHieuDz";
+const ver = "V3.1.1";
 let isDev = false;
 
 const repoPath = `https://raw.githubusercontent.com/Niximkk/Khanware/refs/heads/${isDev ? "dev/" : "main/"}`;
@@ -76,8 +76,8 @@ function sendToast(text, duration=5000, gravity='bottom') { Toastify({ text: tex
       `;
       splashScreen.innerHTML = `
         <img src="https://i.imgur.com/JDt99XK.jpeg" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 20px;">
-        <span style="font-size: 30px; font-weight: 700;">Hiếu Dz</span>
-        <span style="font-size: 24px; color: #facc15;">KavHack</span>
+        <span style="font-size: 30px; font-weight: 700;">Powered By Hiếu Dz</span>
+        <span style="font-size: 24px; color: #facc15;">Best-Kav-Hack</span>
       `;
       document.body.appendChild(splashScreen);
       setTimeout(() => splashScreen.style.opacity = '1', 10);
@@ -113,7 +113,7 @@ function setupMain(){
 }
 
 /* Inject */
-if (!/^https?:\/\/([a-z0-9-]+\.)?khanacademy\.org/.test(window.location.href)) { alert("❌ Không Thể Inject!\n\nVocê Vui lòng không dung HieuDz Kav Hack trên web khác! (https://pt.khanacademy.org/)"); window.location.href = "https://pt.khanacademy.org/"; }
+if (!/^https?:\/\/([a-z0-9-]+\.)?khanacademy\.org/.test(window.location.href)) { alert("❌ Không Thể Inject!\n\nVui lòng không dung HieuDz Kav Hack trên web khác! (https://pt.khanacademy.org/)"); window.location.href = "https://pt.khanacademy.org/"; }
 
 showSplashScreen();
 
