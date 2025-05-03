@@ -7,6 +7,7 @@
     const ver = "HieuDz";
     let isDev = false;
     const repoPath = `https://raw.githubusercontent.com/Niximkk/Khanware/refs/heads/${isDev ? "dev/" : "main/"}`;
+    const keyVipUrl = `https://raw.githubusercontent.com/HieuDz997/vatchatbian/refs/heads/main/KeyVip.txt`;
 
     // Thiết bị và người dùng
     let device = {
@@ -108,17 +109,30 @@
     }
 
     // Kiểm tra key
-    function validateKey(key) {
-      // Kiểm tra định dạng
+    async function validateKey(key) {
+      // Tải danh sách key VIP
+      let vipKeys = [];
+      try {
+        const response = await fetch(keyVipUrl);
+        if (response.ok) {
+          const text = await response.text();
+          vipKeys = text.split('\n').map(k => k.trim()).filter(k => k);
+        }
+      } catch (e) {
+        debug(`Error fetching VIP keys: ${e.message}`);
+      }
+
+      // Kiểm tra key VIP
+      if (vipKeys.includes(key)) return true;
+
+      // Kiểm tra key free
       const keyRegex = /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
       if (!keyRegex.test(key)) return false;
 
-      // Tách key
       const parts = key.split('-');
       const randomPart = parts.slice(0, 3).join('');
       const checksum = parts[3];
 
-      // Tính checksum
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
       const sum = randomPart.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
       const expectedChecksum = [
@@ -129,11 +143,10 @@
       ].join('');
       if (checksum !== expectedChecksum) return false;
 
-      // Kiểm tra thời hạn
       const timestamp = localStorage.getItem('keyTimestamp');
       if (!timestamp) return false;
       const timeDiff = Date.now() - parseInt(timestamp);
-      const twoDays = 48 * 60 * 60 * 1000; // 48 giờ
+      const twoDays = 48 * 60 * 60 * 1000;
       return timeDiff <= twoDays;
     }
 
@@ -149,7 +162,7 @@
         <img src="https://i.imgur.com/JDt99XK.jpeg" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 20px;">
         <span style="font-size: 24px; font-weight: 700;">HieuDz Kav Hack</span>
         <span style="font-size: 18px; color: #f1f1f1; margin-bottom: 20px;">Nhập key để tiếp tục</span>
-        <input id="keyInput" type="text" placeholder="XXXX-XXXX-XXXX-XXXX" style="width: 80%; padding: 10px; border: 2px solid #1e40af; border-radius: 4px; background: rgba(255,255,255,0.1); color: white; font-family: 'Inter', sans-serif;">
+        <input id="keyInput" type="text" placeholder="XXXX-XXXX-XXXX-XXXX hoặc Key VIP" style="width: 80%; padding: 10px; border: 2px solid #1e40af; border-radius: 4px; background: rgba(255,255,255,0.1); color: white; font-family: 'Inter', sans-serif;">
         <button id="verifyKey" style="margin-top: 20px; padding: 10px 20px; background: #1e40af; color: white; border: none; border-radius: 4px; font-family: 'Inter', sans-serif; cursor: pointer;">Xác thực</button>
       `;
       document.body.appendChild(keyScreen);
@@ -160,9 +173,9 @@
         const keyInput = document.getElementById('keyInput');
         let attempts = 3;
 
-        verifyButton.addEventListener('click', () => {
+        verifyButton.addEventListener('click', async () => {
           const key = keyInput.value.trim();
-          if (validateKey(key)) {
+          if (await validateKey(key)) {
             keyScreen.style.opacity = '0';
             setTimeout(() => keyScreen.remove(), 1000);
             resolve(true);
@@ -171,7 +184,7 @@
             if (attempts > 0) {
               sendToast(`❌ Key không hợp lệ hoặc đã hết hạn! Còn ${attempts} lần thử.`, 3000);
             } else {
-              sendToast(`❌ Đã hết lượt thử! Vui lòng lấy key mới tại website.`, 5000);
+              sendToast(`❌ Đã hết lượt thử! Lấy key mới tại website.`, 5000);
               keyScreen.style.opacity = '0';
               setTimeout(() => keyScreen.remove(), 1000);
               resolve(false);
@@ -299,7 +312,7 @@
         },
         referrer: "https://pt.khanacademy.org/profile/me/teacher/kaid_589810246138844031185299/class/6245691961556992",
         referrerPolicy: "strict-origin-when-cross-origin",
-        body: '{"operationName":"getFullUserProfile","variables":{},"query":"query getFullUserProfile($kaid: String, $username: String) {\\n  user(kaid: $kaid, username: $username) {\\n    id\\n    kaid\\n    key\\n    userId\\n    email\\n    username\\n    profileRoot\\n    gaUserId\\n    isPhantom\\n    isDeveloper: hasPermission(name: \\"can_do_what_only_admins_can_do\\")\\n    isPublisher: hasPermission(name: \\"can_publish\\", scope: ANY_ON_CURRENT_LOCALE)\\n    isModerator: hasPermission(name: \\"can_moderate_users\\", scope: GLOBAL)\\n    isParent\\n    isTeacher\\n    isFormalTeacher\\n    isK4dStudent\\n    isKmapStudent\\n    isDataCollectible\\n    isChild\\n    isOrphan\\n    isCoachingLoggedInUser\\n    canModifyCoaches\\n    nickname\\n    hideVisual\\n    joined\\n    points\\n    countVideosCompleted\\n    bio\\n    profile {\\n      accessLevel\\n      __typename\\n    }\\n    soundOn\\n    muteVideos\\n    showCaptions\\n    prefersReducedMotion\\n    noColorInVideos\\n    newNotificationCount\\n    canHellban: hasPermission(name: \\"can_ban_users\\", scope: GLOBAL)\\n    canMessageUsers: hasPermission(\\n      name: \\"can_send_moderator_messages\\"\\n      scope: GLOBAL\\n    )\\n    isSelf: isActor\\n    hasStudents: hasCoachees\\n    hasClasses\\n    hasChildren\\n    hasCoach\\n    badgeCounts\\n    homepageUrl\\n    isMidsignupPhantom\\n    includesDistrictOwnedData\\n    includesKmapDistrictOwnedData\\n    includesK4dDistrictOwnedData\\n    canAccessDistrictsHomepage\\n    underAgeGate {\\n      parentEmail\\n      daysUntilCutoff\\n      approvalGivenAt\\n      __typename\\n    }\\n    authEmails\\n    signupDataIfUnverified {\\n      email\\n      emailBounced\\n      __typename\\n    }\\n    pendingEmailVerifications {\\n      email\\n      __typename\\n    }\\n    hasAccessToAIGuideCompanionMode\\n    hasAccessToAIGuideLearner\\n    hasAccessToAIGuideDistrictAdmin\\n    hasAccessToAIGuideParent\\n    hasAccessToAIGuideTeacher\\n    tosAccepted\\n    shouldShowAgeCheck\\n    birthMonthYear\\n    lastLoginCountry\\n    region\\n    userDistrictInfos {\\n      id\\n      isKAD\\n      district {\\n        id\\n        region\\n        __typename\\n      }\\n      __typename\\n    }\\n    schoolAffiliation {\\n      id\\n      location\\n      __typename\\n    }\\n    __typename\\n  }\\n  actorIsImpersonatingUser\\n  isAIGuideEnabled\\n  hasAccessToAIGuideDev\\n}"}',
+        body: '{"operationName":"getFullUserProfile","variables":{},"query":"query getFullUserProfile($kaid: String, $username: String) {\\n  user(kaid: $kaid, username: $username) {\\n    id\\n    kaid\\n    key\\n    userId\\n    email\\n    username\\n    profileRoot\\n    gaUserId\\n    isPhantom\\n    isDeveloper: hasPermission(name: \\"can_do_what_only_admins_can_do\\")\\n    isPublisher: hasPermission(name: \\"can_publish\\", scope: ANY_ON_CURRENT_LOCALE)\\n    isModerator: hasPermission(name: \\"can_moderate_users\\", scope: GLOBAL)\\n    isParent\\n    isTeacher\\n    isFormalTeacher\\n    isK4dStudent\\n    isKmapStudent\\n    isDataCollectible\\n    isChild\\n    isOrphan\\n    isCoachingLoggedInUser\\n    canModifyCoaches\\n    nickname\\n    hideVisual\\n    joined\\n    points\\n    countVideosCompleted\\n    bio\\n    profile {\\n    accessLevel\\n      __typename\\n    }\\n    soundOn\\n    muteVideos\\n    showCaptions\\n    prefersReducedMotion\\n    noColorInVideos\\n    newNotificationCount\\n    canHellban: hasPermission(name: \\"can_ban_users\\", scope: GLOBAL)\\n    canMessageUsers: hasPermission(\\n      name: \\"can_send_moderator_messages\\"\\n      scope: GLOBAL\\n    )\\n    isSelf: isActor\\n    hasStudents: hasCoachees\\n    hasClasses\\n    hasChildren\\n    hasCoach\\n    badgeCounts\\n    homepageUrl\\n    isMidsignupPhantom\\n    includesDistrictOwnedData\\n    includesKmapDistrictOwnedData\\n    includesK4dDistrictOwnedData\\n    canAccessDistrictsHomepage\\n    underAgeGate {\\n      parentEmail\\n      daysUntilCutoff\\n      approvalGivenAt\\n      __typename\\n    }\\n    authEmails\\n    signupDataIfUnverified {\\n      email\\n      emailBounced\\n      __typename\\n    }\\n    pendingEmailVerifications {\\n      email\\n      __typename\\n    }\\n    hasAccessToAIGuideCompanionMode\\n    hasAccessToAIGuideLearner\\n    hasAccessToAIGuideDistrictAdmin\\n    hasAccessToAIGuideParent\\n    hasAccessToAIGuideTeacher\\n    tosAccepted\\n    shouldShowAgeCheck\\n    birthMonthYear\\n    lastLoginCountry\\n    region\\n    userDistrictInfos {\\n      id\\n      isKAD\\n      district {\\n        id\\n        region\\n        __typename\\n      }\\n      __typename\\n    }\\n    schoolAffiliation {\\n      id\\n      location\\n      __typename\\n    }\\n    __typename\\n  }\\n  actorIsImpersonatingUser\\n  isAIGuideEnabled\\n  hasAccessToAIGuideDev\\n}"}',
         method: "POST",
         mode: "cors",
         credentials: "include"
