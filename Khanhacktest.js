@@ -15,7 +15,7 @@
       mobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Windows Phone|Mobile|Tablet|Kindle|Silk|PlayBook|BB10/i.test(navigator.userAgent),
       apple: /iPhone|iPad|iPod|Macintosh|Mac OS X/i.test(navigator.userAgent)
     };
-    let user = { username: "Username", nickname: "Nickname", UID: 0 };
+    let user = { username: "Không xác định", nickname: "Không xác định", UID: 0 };
     let loadedPlugins = [];
 
     // Đếm số lần inject
@@ -156,13 +156,15 @@
 
     // Kiểm tra key
     async function validateKey(key) {
-      // Tải danh sách key VIP
+      // Tải danh sách key VIP mới mỗi lần kiểm tra
       let vipKeys = [];
       try {
         const response = await fetch(keyVipUrl);
         if (response.ok) {
           const text = await response.text();
           vipKeys = text.split('\n').map(k => k.trim()).filter(k => k);
+        } else {
+          debug(`Failed to fetch VIP keys: Status ${response.status}`);
         }
       } catch (e) {
         debug(`Error fetching VIP keys: ${e.message}`);
@@ -393,7 +395,15 @@
         credentials: "include"
       });
       const data = await response.json();
-      user = { nickname: data.data.user.nickname, username: data.data.user.username, UID: data.data.user.id.slice(-5) };
+      if (data.data && data.data.user) {
+        user = {
+          username: data.data.user.username || "Không xác định",
+          nickname: data.data.user.nickname || "Không xác định",
+          UID: data.data.user.id ? parseInt(data.data.user.id.slice(-5)) : 0
+        };
+      } else {
+        debug('Failed to fetch user profile data');
+      }
     } catch (e) {
       debug(`Error fetching user profile: ${e.message}`);
     }
