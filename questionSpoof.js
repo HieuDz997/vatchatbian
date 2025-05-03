@@ -26,7 +26,7 @@ window.fetch = async function (input, init) {
                 itemData.question.content = phrases[Math.floor(Math.random() * phrases.length)] + `[[☃ radio 1]]`;
                 itemData.question.widgets = { "radio 1": { type: "radio",  options: { choices: [ { content: "Hiếu nói đáp án này đúng ây.", correct: true }, { content: "Đáp án này sai nha bro.", correct: false } ] } } };
                 responseObj.data.assessmentItem.item.itemData = JSON.stringify(itemData);
-                sendToast("🔓 Questão exploitada.", 1000);
+                sendToast("🔓Câu Hỏi Đã Bị Tui Hack Hahaha.", 1000);
                 return new Response(JSON.stringify(responseObj), { status: originalResponse.status, statusText: originalResponse.statusText, headers: originalResponse.headers });
             }
         }
