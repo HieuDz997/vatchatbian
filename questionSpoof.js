@@ -1,9 +1,9 @@
 const phrases = [ 
     "🔥 Infor Hiếu Nèk, => [Bio HieuDz](https://nguoibian.vercel.app/)!",
     "🤍 Made by [Hiếu Dz](https://www.facebook.com/KingHieuDzPro747/).",
-    "☄️ Click Here Pls => =) [Niximkk/khanware](https://nguoibian.vercel.app/).",
-    "🌟 Like Facebook ik! [GitHub](https://www.facebook.com/KingHieuDzPro747/)!",
-    "🦢 Cảm on vì dùng nhoa, dùng nhiều qs coi chừng mất gốc toán  ;)",
+    "☄️ Click Here Pls => =) [Bio Tui](https://nguoibian.vercel.app/).",
+    "🌟 Like Facebook ik! [Fb tao](https://www.facebook.com/KingHieuDzPro747/)!",
+    "🦢 Cảm on vì dùng nhoa, dùng nhiều qs coi chừng mất gốc toán đó,Cân all bài tập! ;)",
 ];
 
 const originalFetch = window.fetch;
