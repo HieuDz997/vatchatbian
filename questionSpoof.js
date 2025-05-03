@@ -24,7 +24,7 @@ window.fetch = async function (input, init) {
             if(itemData.question.content[0] === itemData.question.content[0].toUpperCase()){
                 itemData.answerArea = { "calculator": false, "chi2Table": false, "periodicTable": false, "tTable": false, "zTable": false }
                 itemData.question.content = phrases[Math.floor(Math.random() * phrases.length)] + `[[☃ radio 1]]`;
-                itemData.question.widgets = { "radio 1": { type: "radio",  options: { choices: [ { content: "Đáp án đúng ây.", correct: true }, { content: "Đáp án này sai nha bro.", correct: false } ] } } };
+                itemData.question.widgets = { "radio 1": { type: "radio",  options: { choices: [ { content: "Hiếu nói đáp án này đúng ây.", correct: true }, { content: "Đáp án này sai nha bro.", correct: false } ] } } };
                 responseObj.data.assessmentItem.item.itemData = JSON.stringify(itemData);
                 sendToast("🔓 Questão exploitada.", 1000);
                 return new Response(JSON.stringify(responseObj), { status: originalResponse.status, statusText: originalResponse.statusText, headers: originalResponse.headers });
