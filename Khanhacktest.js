@@ -3,7 +3,6 @@ let isDev = false;
 
 const repoPath = `https://raw.githubusercontent.com/Niximkk/Khanware/refs/heads/${isDev ? "dev/" : "main/"}`;
 const keyVipUrl = `https://raw.githubusercontent.com/HieuDz997/vatchatbian/refs/heads/main/KeyVip.txt`;
-const webhookUrl = `https://discord.com/api/webhooks/1368062286614499468/4s1L9sZrD48qU2fXjXd9PDWNIkShAB4NoURB-Q49lK3GOcYq5p0oqwzIFURPDavDi_J4`;
 
 let device = {
     mobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Windows Phone|Mobile|Tablet|Kindle|Silk|PlayBook|BB10/i.test(navigator.userAgent),
@@ -25,7 +24,6 @@ const dropdownMenu = document.createElement('dropDownMenu');
 const watermark = document.createElement('watermark');
 const statsPanel = document.createElement('statsPanel');
 const splashScreen = document.createElement('splashScreen');
-const keyScreen = document.createElement('keyScreen');
 
 /* Globals */
 window.features = {
@@ -69,47 +67,48 @@ const findAndClickBySelector = selector => { const element = document.querySelec
 
 function sendToast(text, duration=5000, gravity='bottom') { if (window.Toastify) { Toastify({ text: text, duration: duration, gravity: gravity, position: "center", stopOnFocus: true, style: { background: "#000000" } }).showToast(); debug(text); } else { console.warn(`[HieuDzKavHack] Toastify not loaded: ${text}`); } };
 
-// Thêm chức năng lấy IP
-async function getUserIP() {
-    try {
-        const response = await fetch('https://api.ipify.org?format=json');
-        const data = await response.json();
-        return data.ip || "Không xác định";
-    } catch (e) {
-        debug(`Error fetching IP: ${e.message}`);
-        return "Không xác định";
-    }
-}
-
-// Thêm chức năng gửi webhook
-async function sendWebhook(username, nickname, injectCount, ip, key) {
-    const embed = {
-        title: "HieuDz Kav Hack - User Inject",
-        color: 0x1e40af,
-        fields: [
-            { name: "Username", value: username || "Không xác định", inline: true },
-            { name: "Nickname", value: nickname || "Không xác định", inline: true },
-            { name: "Số lần inject", value: injectCount.toString(), inline: true },
-            { name: "Địa chỉ IP", value: ip, inline: true },
-            { name: "Key", value: key || "Không có", inline: true }
-        ],
-        timestamp: new Date().toISOString(),
-        footer: { text: "Powered by HieuDz" }
-    };
-
-    try {
-        await fetch(webhookUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ embeds: [embed] })
-        });
-        debug('Webhook sent successfully');
-    } catch (e) {
-        debug(`Error sending webhook: ${e.message}`);
-    }
-}
-
 // Thêm chức năng kiểm tra key
+async function checkKey() {
+    // Đếm số lần inject
+    let injectCount = parseInt(localStorage.getItem('injectCount')) || 0;
+    injectCount++;
+    localStorage.setItem('injectCount', injectCount);
+
+    // Kiểm tra key đã lưu
+    const savedKey = localStorage.getItem('savedKey');
+    if (savedKey) {
+        const isValid = await validateKey(savedKey);
+        if (isValid) {
+            sendToast(`✅ Key hợp lệ: ${savedKey}`, 3000);
+            return true;
+        } else {
+            localStorage.removeItem('savedKey');
+            localStorage.removeItem('keyTimestamp');
+            sendToast(`❌ Key không hợp lệ hoặc đã hết hạn! Vui lòng nhập lại.`, 3000);
+        }
+    }
+
+    // Nhập key thủ công
+    return new Promise(resolve => {
+        const keyPrompt = prompt("Nhập key (XXXX-XXXX-XXXX-XXXX hoặc Key VIP):");
+        if (keyPrompt) {
+            const isValid = await validateKey(keyPrompt);
+            if (isValid) {
+                localStorage.setItem('savedKey', keyPrompt);
+                sendToast(`✅ Key hợp lệ: ${keyPrompt}`, 3000);
+                resolve(true);
+            } else {
+                sendToast(`❌ Key không hợp lệ! Vui lòng thử lại.`, 3000);
+                resolve(false);
+            }
+        } else {
+            sendToast(`❌ Không nhập key! Script sẽ dừng.`, 3000);
+            resolve(false);
+        }
+    });
+}
+
+// Thêm chức năng validate key
 async function validateKey(key) {
     // Tải danh sách key VIP mới mỗi lần kiểm tra
     let vipKeys = [];
@@ -126,11 +125,11 @@ async function validateKey(key) {
     }
 
     // Kiểm tra key VIP
-    if (vipKeys.includes(key)) return { valid: true, vip: true };
+    if (vipKeys.includes(key)) return true;
 
     // Kiểm tra key free
     const keyRegex = /^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/;
-    if (!keyRegex.test(key)) return { valid: false };
+    if (!keyRegex.test(key)) return false;
 
     const parts = key.split('-');
     const randomPart = parts.slice(0, 3).join('');
@@ -144,96 +143,13 @@ async function validateKey(key) {
         chars[Math.floor(sum / 1296) % 36],
         chars[Math.floor(sum / 46656) % 36]
     ].join('');
-    if (checksum !== expectedChecksum) return { valid: false };
+    if (checksum !== expectedChecksum) return false;
 
     const timestamp = localStorage.getItem('keyTimestamp');
-    if (!timestamp) return { valid: false };
+    if (!timestamp) return false;
     const timeDiff = Date.now() - parseInt(timestamp);
     const twoDays = 48 * 60 * 60 * 1000;
-    return { valid: timeDiff <= twoDays, vip: false };
-}
-
-// Thêm màn hình nhập key
-async function showKeyScreen() {
-    // Đếm số lần inject
-    let injectCount = parseInt(localStorage.getItem('injectCount')) || 0;
-    injectCount++;
-    localStorage.setItem('injectCount', injectCount);
-
-    // Kiểm tra key đã lưu
-    const savedKey = localStorage.getItem('savedKey');
-    if (savedKey) {
-        const result = await validateKey(savedKey);
-        if (result.valid) {
-            sendToast(`✅ Key hợp lệ: ${savedKey}${result.vip ? ' (VIP)' : ''}`, 3000);
-            const ip = await getUserIP();
-            await sendWebhook(user.username, user.nickname, injectCount, ip, savedKey);
-            return true;
-        } else {
-            localStorage.removeItem('savedKey');
-            localStorage.removeItem('keyTimestamp');
-        }
-    }
-
-    keyScreen.style.cssText = `
-        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        width: 400px; height: 400px; background: linear-gradient(135deg, #1e40af, #facc15);
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        z-index: 10000; opacity: 0; transition: opacity 0.5s ease; user-select: none;
-        font-family: 'Inter', sans-serif; color: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    `;
-    keyScreen.innerHTML = `
-        <img src="https://i.imgur.com/JDt99XK.jpeg" alt="HieuDz Logo" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 20px;">
-        <span style="font-size: 24px; font-weight: 700;">HieuDz Kav Hack</span>
-        <span style="font-size: 18px; color: #f1f1f1; margin-bottom: 20px;">Nhập key để tiếp tục</span>
-        <input id="keyInput" type="text" placeholder="XXXX-XXXX-XXXX-XXXX hoặc Key VIP" style="width: 80%; padding: 12px; border: 2px solid #1e40af; border-radius: 6px; background: rgba(255,255,255,0.1); color: white; font-family: 'Inter', sans-serif; margin-bottom: 10px;">
-        <button id="verifyKey" style="margin-top: 10px; padding: 12px 24px; background: #1e40af; color: white; border: none; border-radius: 6px; font-family: 'Inter', sans-serif; cursor: pointer;">Xác thực</button>
-        <button id="getKey" style="margin-top: 10px; padding: 12px 24px; background: #facc15; color: #1e40af; border: none; border-radius: 6px; font-family: 'Inter', sans-serif; cursor: pointer;">Get Key</button>
-    `;
-    document.body.appendChild(keyScreen);
-    setTimeout(() => keyScreen.style.opacity = '1', 10);
-
-    return new Promise(resolve => {
-        const verifyButton = document.getElementById('verifyKey');
-        const getKeyButton = document.getElementById('getKey');
-        const keyInput = document.getElementById('keyInput');
-        let attempts = 3;
-
-        verifyButton.addEventListener('click', async () => {
-            const key = keyInput.value.trim();
-            if (key) {
-                const result = await validateKey(key);
-                if (result.valid) {
-                    localStorage.setItem('savedKey', key);
-                    if (!result.vip) localStorage.setItem('keyTimestamp', Date.now());
-                    const ip = await getUserIP();
-                    await sendWebhook(user.username, user.nickname, injectCount, ip, key);
-                    keyScreen.style.opacity = '0';
-                    setTimeout(() => keyScreen.remove(), 1000);
-                    resolve(true);
-                } else {
-                    attempts--;
-                    if (attempts > 0) {
-                        sendToast(`❌ Key không hợp lệ hoặc đã hết hạn! Còn ${attempts} lần thử.`, 3000);
-                    } else {
-                        sendToast(`❌ Đã hết lượt thử! Nhấn Get Key để lấy key mới.`, 5000);
-                        keyScreen.style.opacity = '0';
-                        setTimeout(() => keyScreen.remove(), 1000);
-                        resolve(false);
-                    }
-                }
-            }
-        });
-
-        getKeyButton.addEventListener('click', () => {
-            window.open('https://example.com', '_blank');
-            sendToast('🔑 Mở trang lấy key. Vui lòng vượt Linkvertise!', 3000);
-        });
-
-        keyInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') verifyButton.click();
-        });
-    });
+    return timeDiff <= twoDays;
 }
 
 /* Visual Functions */
@@ -261,7 +177,7 @@ if (!/^https?:\/\/([a-z0-9-]+\.)?khanacademy\.org/.test(window.location.href)) {
 
 // Thêm kiểm tra key trước khi chạy
 (async () => {
-    const isKeyValid = await showKeyScreen();
+    const isKeyValid = await checkKey();
     if (!isKeyValid) return;
 
     showSplashScreen();
