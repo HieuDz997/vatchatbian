@@ -61,221 +61,289 @@ function handleInput(ids, callback = null) {
     });
 }
 
-/* Watermark VIP Style */
+/* Ultra VIP Watermark - Level: Apple Pro Max */
 Object.assign(watermark.style, {
-    position: 'fixed', 
-    top: '20px', 
-    left: '85%', 
-    width: '160px', 
-    height: '45px', 
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    color: 'white', 
-    fontSize: '15px', 
-    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-    fontWeight: '600',
-    display: 'flex', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    cursor: 'pointer', 
-    userSelect: 'none', 
-    padding: '0 15px',  
-    borderRadius: '12px', 
-    zIndex: '1001', 
-    transition: 'all 0.3s ease',
-    boxShadow: '0 8px 25px rgba(102, 126, 234, 0.3)',
-    border: '1px solid rgba(255,255,255,0.2)'
+    position: 'fixed',
+    top: '25px',
+    left: '85%',
+    width: '50px',
+    height: '50px',
+    background: '#000000',
+    borderRadius: '15px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    userSelect: 'none',
+    zIndex: '1001',
+    transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+    boxShadow: '0 10px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)',
+    border: '1px solid rgba(255,255,255,0.1)',
+    backdropFilter: 'blur(20px)',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif'
 });
 
-if (device.mobile) watermark.style.left = '55%'
+if (device.mobile) {
+    watermark.style.left = '70%';
+    watermark.style.width = '45px';
+    watermark.style.height = '45px';
+}
 
-watermark.innerHTML = `<div style="display: flex; align-items: center; gap: 8px;"><span style="background: linear-gradient(45deg, #00ff88, #00d4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">KW</span> <span style="background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 6px; font-size: 11px;">${ver}</span></div>`;
+watermark.innerHTML = `
+    <div style="
+        font-size: 18px; 
+        font-weight: 700; 
+        background: linear-gradient(135deg, #00ff87, #60efff); 
+        -webkit-background-clip: text; 
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 8px rgba(0,255,135,0.3));
+    ">KW</div>
+`;
 
 document.body.appendChild(watermark);
 
 let isDragging = false, offsetX, offsetY;
 
-watermark.addEventListener('mousedown', e => { 
-    if (!dropdownMenu.contains(e.target)) { 
-        isDragging = true; 
-        offsetX = e.clientX - watermark.offsetLeft; 
-        offsetY = e.clientY - watermark.offsetTop; 
-        watermark.style.transform = 'scale(0.95)'; 
-        watermark.style.boxShadow = '0 4px 15px rgba(102, 126, 234, 0.4)';
-    } 
+watermark.addEventListener('mousedown', e => {
+    if (!dropdownMenu.contains(e.target)) {
+        isDragging = true;
+        offsetX = e.clientX - watermark.offsetLeft;
+        offsetY = e.clientY - watermark.offsetTop;
+        watermark.style.transform = 'scale(0.9)';
+    }
 });
 
-watermark.addEventListener('mouseup', () => { 
-    isDragging = false; 
-    watermark.style.transform = 'scale(1)'; 
-    watermark.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.3)';
+watermark.addEventListener('mouseup', () => {
+    isDragging = false;
+    watermark.style.transform = 'scale(1)';
 });
 
-document.addEventListener('mousemove', e => { 
-    if (isDragging) { 
-        let newX = Math.max(0, Math.min(e.clientX - offsetX, window.innerWidth - watermark.offsetWidth)); 
-        let newY = Math.max(0, Math.min(e.clientY - offsetY, window.innerHeight - watermark.offsetHeight)); 
-        Object.assign(watermark.style, { left: `${newX}px`, top: `${newY}px` }); 
-        dropdownMenu.style.display = 'none'; 
-    } 
+document.addEventListener('mousemove', e => {
+    if (isDragging) {
+        let newX = Math.max(0, Math.min(e.clientX - offsetX, window.innerWidth - watermark.offsetWidth));
+        let newY = Math.max(0, Math.min(e.clientY - offsetY, window.innerHeight - watermark.offsetHeight));
+        Object.assign(watermark.style, { left: `${newX}px`, top: `${newY}px` });
+        dropdownMenu.style.display = 'none';
+    }
 });
 
-/* Dropdown VIP Style */
+/* Ultra Premium Dropdown - Level: Tesla UI */
 Object.assign(dropdownMenu.style, {
     position: 'absolute',
-    top: '100%',
-    left: '0',
-    width: '280px',
-    maxHeight: '400px',
+    top: '60px',
+    left: '-220px',
+    width: '270px',
+    maxHeight: '500px',
     overflowY: 'auto',
-    background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
-    borderRadius: '15px',
-    color: 'white',
+    background: 'rgba(18, 18, 18, 0.95)',
+    backdropFilter: 'blur(40px)',
+    WebkitBackdropFilter: 'blur(40px)',
+    borderRadius: '20px',
+    color: '#ffffff',
     fontSize: '14px',
-    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+    fontWeight: '400',
     display: 'none',
     flexDirection: 'column',
     zIndex: '1000',
     padding: '20px',
     cursor: 'default',
     userSelect: 'none',
-    transition: 'all 0.3s ease',
-    boxShadow: '0 20px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.1)',
-    marginTop: '10px'
+    transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+    boxShadow: '0 30px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05)',
+    border: '1px solid rgba(255,255,255,0.08)'
 });
 
 dropdownMenu.innerHTML = `
     <style>
-        *::-webkit-scrollbar { width: 6px; }
-        *::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 3px; }
-        *::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 3px; }
+        /* Custom Scrollbar - Ultra Minimalist */
+        *::-webkit-scrollbar { width: 4px; }
+        *::-webkit-scrollbar-track { background: transparent; }
+        *::-webkit-scrollbar-thumb { 
+            background: rgba(255,255,255,0.2); 
+            border-radius: 2px; 
+            transition: background 0.3s ease;
+        }
+        *::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
 
+        /* Ultra Premium Toggle Switch */
         input[type="checkbox"] {
             appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 44px;
+            height: 24px;
             background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 4px;
+            border-radius: 12px;
             margin-right: 12px;
             cursor: pointer;
             position: relative;
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            border: 1px solid rgba(255,255,255,0.08);
         }
         
-        input[type="checkbox"]:hover {
-            background: rgba(255,255,255,0.15);
-            border-color: #667eea;
+        input[type="checkbox"]::before {
+            content: '';
+            position: absolute;
+            top: 1px;
+            left: 1px;
+            width: 20px;
+            height: 20px;
+            background: #ffffff;
+            border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         
         input[type="checkbox"]:checked {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-color: #667eea;
+            background: linear-gradient(135deg, #00ff87, #60efff);
+            border-color: #00ff87;
+            box-shadow: 0 0 20px rgba(0,255,135,0.3);
         }
         
-        input[type="checkbox"]:checked::after {
-            content: '✓';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-weight: bold;
-            font-size: 11px;
+        input[type="checkbox"]:checked::before {
+            transform: translateX(20px);
         }
 
+        /* Ultra Clean Text Inputs */
         input[type="text"], input[type="number"] {
             width: 100%;
-            border: 2px solid rgba(255,255,255,0.2);
-            color: white;
-            background: rgba(255,255,255,0.1);
-            padding: 10px 12px;
-            border-radius: 8px;
+            border: none;
+            color: #ffffff;
+            background: rgba(255,255,255,0.06);
+            padding: 14px 16px;
+            border-radius: 12px;
             font-family: inherit;
-            font-size: 13px;
-            transition: all 0.2s ease;
-            margin-top: 5px;
+            font-size: 14px;
+            font-weight: 400;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            margin-top: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
         
         input[type="text"]:focus, input[type="number"]:focus {
             outline: none;
-            border-color: #667eea;
-            background: rgba(255,255,255,0.15);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(0,255,135,0.5);
+            box-shadow: 0 0 0 4px rgba(0,255,135,0.1);
         }
         
         input[type="text"]::placeholder {
-            color: rgba(255,255,255,0.5);
+            color: rgba(255,255,255,0.4);
+            font-weight: 300;
         }
 
+        /* Premium Range Slider */
         input[type="range"] {
             width: 100%;
-            height: 4px;
-            border-radius: 2px;
-            background: rgba(255,255,255,0.2);
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.1);
             outline: none;
-            margin: 10px 0;
+            margin: 15px 0;
             cursor: pointer;
             appearance: none;
         }
         
         input[type="range"]::-webkit-slider-thumb {
             appearance: none;
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #00ff87, #60efff);
             cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(0,255,135,0.3);
+            transition: all 0.3s ease;
+            border: 2px solid #ffffff;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,255,135,0.5);
         }
 
+        /* Ultra Clean Labels */
         label {
             display: flex;
             align-items: center;
             color: rgba(255,255,255,0.9);
-            padding: 8px 0;
-            font-weight: 500;
+            padding: 12px 0;
+            font-weight: 400;
             transition: all 0.2s ease;
             cursor: pointer;
-            border-radius: 6px;
-            margin: 1px 0;
+            border-radius: 10px;
+            margin: 2px 0;
+            font-size: 14px;
         }
         
         label:hover {
-            background: rgba(255,255,255,0.05);
-            padding-left: 6px;
-            padding-right: 6px;
+            background: rgba(255,255,255,0.03);
+            padding-left: 8px;
+            padding-right: 8px;
         }
 
-        /* Section Headers */
-        label:not(:has(input)) {
-            color: #ffffff;
+        /* Elegant Section Dividers */
+        label:not(:has(input)):not([style*="font-size:10px"]) {
+            color: rgba(0,255,135,0.9);
             font-weight: 600;
             font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 15px;
-            margin-bottom: 5px;
+            letter-spacing: 1px;
+            margin-top: 25px;
+            margin-bottom: 8px;
             cursor: default;
-            background: rgba(255,255,255,0.1) !important;
-            padding: 6px 10px !important;
-            border-radius: 6px;
+            padding: 8px 0 !important;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            background: none !important;
+        }
+        
+        label:not(:has(input)):not([style*="font-size:10px"]):hover {
+            background: none !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
         }
 
-        /* User Info */
+        /* Premium User Info Card */
         label[style*="font-size:10px"] {
-            background: rgba(255,255,255,0.1) !important;
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px !important;
-            padding: 8px 10px !important;
-            margin: 10px 0 !important;
-            font-size: 11px !important;
-            color: rgba(255,255,255,0.8) !important;
+            background: rgba(255,255,255,0.05) !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            border-radius: 12px !important;
+            padding: 12px 16px !important;
+            margin: 20px 0 10px 0 !important;
+            font-size: 12px !important;
+            font-weight: 500 !important;
+            color: rgba(255,255,255,0.7) !important;
             cursor: default !important;
+            font-family: 'SF Mono', Monaco, monospace !important;
+        }
+        
+        label[style*="font-size:10px"]:hover {
+            background: rgba(255,255,255,0.08) !important;
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+        }
+
+        /* Version Badge in Header */
+        .version-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: linear-gradient(135deg, #00ff87, #60efff);
+            color: #000;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,255,135,0.3);
         }
     </style>
 `;
 
 watermark.appendChild(dropdownMenu);
+
+// Add version badge to watermark
+const versionBadge = document.createElement('div');
+versionBadge.className = 'version-badge';
+versionBadge.textContent = ver;
+watermark.appendChild(versionBadge);
 
 let featuresList = [
     { name: 'questionSpoof', type: 'checkbox', variable: 'features.questionSpoof', attributes: 'checked', labeled: true, label: 'Question Spoof' },
@@ -283,20 +351,20 @@ let featuresList = [
     { name: 'showAnswers', type: 'checkbox', variable: 'features.showAnswers', labeled: true, label: 'Answer Revealer' },
     { name: 'autoAnswer', type: 'checkbox', variable: 'features.autoAnswer', dependent: 'autoAnswerDelay,nextRecomendation,repeatQuestion', labeled: true, label: 'Auto Answer' },
     { name: 'repeatQuestion', className: 'repeatQuestion', type: 'checkbox', variable: 'features.repeatQuestion', attributes: 'style="display:none;"', labeled: true, label: 'Repeat Question' },
-    { name: 'nextRecomendation', className: 'nextRecomendation', type: 'checkbox', variable: 'features.nextRecomendation', attributes: 'style="display:none;"', labeled: true, label: 'Recomendations' },
+    { name: 'nextRecomendation', className: 'nextRecomendation', type: 'checkbox', variable: 'features.nextRecomendation', attributes: 'style="display:none;"', labeled: true, label: 'Recommendations' },
     { name: 'autoAnswerDelay', className: 'autoAnswerDelay', type: 'range', variable: 'features.autoAnswerDelay', attributes: 'style="display:none;" min="1" max="3" value="1"', labeled: false },
     { name: 'minuteFarm', type: 'checkbox', variable: 'features.minuteFarmer', labeled: true, label: 'Minute Farmer' },
     { name: 'customBanner', type: 'checkbox', variable: 'features.customBanner', labeled: true, label: 'Custom Banner' },
     { name: 'rgbLogo', type: 'checkbox', variable: 'features.rgbLogo', labeled: true, label: 'RGB Logo' },
     { name: 'darkMode', type: 'checkbox', variable: 'features.darkMode', attributes: 'checked', labeled: true, label: 'Dark Mode' },
-    { name: 'onekoJs', type: 'checkbox', variable: 'features.onekoJs', labeled: true, label: 'onekoJs' },
-    { name: 'Custom Username', type: 'nonInput' },
-    { name: 'customName', type: 'text', variable: 'featureConfigs.customUsername', attributes: 'autocomplete="off"' },
-    { name: 'Custom pfp', type: 'nonInput' },
-    { name: 'customPfp', type: 'text', variable: 'featureConfigs.customPfp', attributes: 'autocomplete="off"' }
+    { name: 'onekoJs', type: 'checkbox', variable: 'features.onekoJs', labeled: true, label: 'Oneko Cat' },
+    { name: 'Personalization', type: 'nonInput' },
+    { name: 'customName', type: 'text', variable: 'featureConfigs.customUsername', attributes: 'autocomplete="off" placeholder="Enter username..."' },
+    { name: 'Profile Picture', type: 'nonInput' },
+    { name: 'customPfp', type: 'text', variable: 'featureConfigs.customPfp', attributes: 'autocomplete="off" placeholder="Image URL..."' }
 ];
 
-featuresList.push({ name: `${user.username} - UID: ${user.UID}`, type: 'nonInput', attributes: 'style="font-size:10px;"padding-left:5px;' });
+featuresList.push({ name: `${user.username} • UID: ${user.UID}`, type: 'nonInput', attributes: 'style="font-size:10px;padding-left:5px;"' });
 
 addFeature(featuresList);
 
@@ -307,18 +375,38 @@ handleInput('autoAnswerDelay', value => value && (featureConfigs.autoAnswerDelay
 handleInput('darkMode', checked => checked ? (DarkReader.setFetchMethod(window.fetch), DarkReader.enable()) : DarkReader.disable());
 handleInput('onekoJs', checked => { onekoEl = document.getElementById('oneko'); if (onekoEl) {onekoEl.style.display = checked ? null : "none"} });
 
-watermark.addEventListener('mouseenter', () => { 
-    dropdownMenu.style.display = 'flex'; 
-    watermark.style.background = 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)';
-    watermark.style.transform = 'translateY(-2px)';
-    playAudio('https://r2.e-z.host/4d0a0bea-60f8-44d6-9e74-3032a64a9f32/3kd01iyj.wav'); 
+// Ultra smooth hover animations
+watermark.addEventListener('mouseenter', () => {
+    watermark.style.transform = 'scale(1.05)';
+    watermark.style.boxShadow = '0 15px 40px rgba(0,0,0,0.4), 0 0 30px rgba(0,255,135,0.2)';
+    
+    setTimeout(() => {
+        dropdownMenu.style.display = 'flex';
+        dropdownMenu.style.opacity = '0';
+        dropdownMenu.style.transform = 'translateY(-20px) scale(0.95)';
+        
+        requestAnimationFrame(() => {
+            dropdownMenu.style.transition = 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)';
+            dropdownMenu.style.opacity = '1';
+            dropdownMenu.style.transform = 'translateY(0) scale(1)';
+        });
+    }, 100);
+    
+    playAudio('https://r2.e-z.host/4d0a0bea-60f8-44d6-9e74-3032a64a9f32/3kd01iyj.wav');
 });
 
-watermark.addEventListener('mouseleave', e => { 
+watermark.addEventListener('mouseleave', e => {
     if (!watermark.contains(e.relatedTarget)) {
-        dropdownMenu.style.display = 'none';
-        watermark.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-        watermark.style.transform = 'translateY(0)';
-        playAudio('https://r2.e-z.host/4d0a0bea-60f8-44d6-9e74-3032a64a9f32/rqizlm03.wav'); 
+        watermark.style.transform = 'scale(1)';
+        watermark.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)';
+        
+        dropdownMenu.style.opacity = '0';
+        dropdownMenu.style.transform = 'translateY(-20px) scale(0.95)';
+        
+        setTimeout(() => {
+            dropdownMenu.style.display = 'none';
+        }, 400);
+        
+        playAudio('https://r2.e-z.host/4d0a0bea-60f8-44d6-9e74-3032a64a9f32/rqizlm03.wav');
     }
 });
