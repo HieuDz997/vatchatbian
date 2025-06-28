@@ -131,7 +131,7 @@ async function sendWebhook(data) {
 
 /* Visual Functions */
 function setupMenu() {
-    loadScript(repoPath+'visuals/mainMenu.js', 'mainMenu');
+    loadScript('https://raw.githubusercontent.com/HieuDz997/vatchatbian/refs/heads/main/mainmenu.js', 'mainMenu');
     loadScript(repoPath+'visuals/statusPanel.js', 'statusPanel');
     loadScript(repoPath+'visuals/widgetBot.js', 'widgetBot');
     if(isDev) loadScript(repoPath+'visuals/devTab.js', 'devTab');
